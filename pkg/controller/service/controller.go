@@ -191,6 +191,13 @@ func (s *Controller) enqueueService(obj interface{}) {
 	s.queue.Add(key)
 }
 
+// this will also take care of create & delete of loadbalancer.
+// serviceSyncPeriod --> the sync period --> ensure that correct loadbalancer exists.
+// nodeSyncPeriod --> how often we check the cluster's node to determine if load balancers need to be updated to point to new set.
+// This function should be called only once.
+// This serviceController is implemented using `sharedInformers` pattern.
+// struct{} --> is the smallest datatype available
+
 // Run starts a background goroutine that watches for changes to services that
 // have (or had) LoadBalancers=true and ensures that they have
 // load balancers created and deleted appropriately.
@@ -212,6 +219,9 @@ func (s *Controller) Run(stopCh <-chan struct{}, workers int) {
 		return
 	}
 
+	// Until loops until stop channel is closed, running f every period.
+	// how is this workers count decided?
+	// who closes this channel.
 	for i := 0; i < workers; i++ {
 		go wait.Until(s.worker, time.Second, stopCh)
 	}
@@ -221,6 +231,8 @@ func (s *Controller) Run(stopCh <-chan struct{}, workers int) {
 	<-stopCh
 }
 
+// syncHandler compares the actual state with the desired, and attempts to
+// converge the two.
 // worker runs a worker thread that just dequeues items, processes them, and marks them done.
 // It enforces that the syncHandler is never invoked concurrently with the same key.
 func (s *Controller) worker() {
@@ -279,6 +291,7 @@ func (s *Controller) processServiceCreateOrUpdate(service *v1.Service, key strin
 	cachedService.state = service
 	op, err := s.syncLoadBalancerIfNeeded(service, key)
 	if err != nil {
+		// how are all the events agregated to kubectl get events??
 		s.eventRecorder.Eventf(service, v1.EventTypeWarning, "SyncLoadBalancerFailed", "Error syncing load balancer: %v", err)
 		return err
 	}
