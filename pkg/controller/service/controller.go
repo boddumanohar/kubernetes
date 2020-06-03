@@ -142,6 +142,11 @@ func New(
 		knownHosts:       []*v1.Node{},
 		kubeClient:       kubeClient,
 		clusterName:      clusterName,
+		// what is cache in client-go??
+		// Package cache is a client-side caching mechanism.
+		// It is useful for reducing the number of server calls
+		// you'd otherwise need to make. Reflector watches a server and updates a Store.
+
 		cache:            &serviceCache{serviceMap: make(map[string]*cachedService)},
 		eventBroadcaster: broadcaster,
 		eventRecorder:    recorder,
@@ -190,6 +195,9 @@ func (s *Controller) enqueueService(obj interface{}) {
 	}
 	s.queue.Add(key)
 }
+
+// what is a service controller? 
+// A controller that manages the state of the "service" object
 
 // this will also take care of create & delete of loadbalancer.
 // serviceSyncPeriod --> the sync period --> ensure that correct loadbalancer exists.
@@ -822,6 +830,8 @@ func (s *Controller) addFinalizer(service *v1.Service) error {
 }
 
 // removeFinalizer patches the service to remove finalizer.
+// what is a finalizer in service controller?
+// with the service load-balancer going GA, the cache layer is no longer needed.
 func (s *Controller) removeFinalizer(service *v1.Service) error {
 	if !servicehelper.HasLBFinalizer(service) {
 		return nil
@@ -866,6 +876,8 @@ func (s *Controller) patchStatus(service *v1.Service, previousStatus, newStatus 
 // some set of criteria defined by the function.
 type NodeConditionPredicate func(node *v1.Node) bool
 
+// predicate functions in golang?
+// a function that returns either true or false.
 // listWithPredicate gets nodes that matches predicate function.
 func listWithPredicate(nodeLister corelisters.NodeLister, predicate NodeConditionPredicate) ([]*v1.Node, error) {
 	nodes, err := nodeLister.List(labels.Everything())
