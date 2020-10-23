@@ -73,25 +73,27 @@ type migrationOpCheck struct {
 }
 
 // BaseSuites is a list of storage test suites that work for in-tree and CSI drivers
-var BaseSuites = []func() TestSuite{
-	InitVolumesTestSuite,
-	InitVolumeIOTestSuite,
-	InitVolumeModeTestSuite,
-	InitSubPathTestSuite,
-	InitProvisioningTestSuite,
-	InitMultiVolumeTestSuite,
-	InitVolumeExpandTestSuite,
-	InitDisruptiveTestSuite,
-	InitVolumeLimitsTestSuite,
-	InitTopologyTestSuite,
-	InitStressTestSuite,
+var CSISuites = []func() TestSuite{
+	// InitVolumesTestSuite,
+	// InitVolumeIOTestSuite,
+	// InitVolumeModeTestSuite,
+	// InitSubPathTestSuite,
+	// InitProvisioningTestSuite,
+	// InitSnapshottableTestSuite,
+	InitSnapshotsecretsTestSuite,
+	// InitMultiVolumeTestSuite,
+	// InitVolumeExpandTestSuite,
+	// InitDisruptiveTestSuite,
+	// InitVolumeLimitsTestSuite,
+	// InitTopologyTestSuite,
+	// InitStressTestSuite,
 }
 
 // CSISuites is a list of storage test suites that work only for CSI drivers
-var CSISuites = append(BaseSuites,
-	InitEphemeralTestSuite,
-	InitSnapshottableTestSuite,
-)
+// var CSISuites = append(BaseSuites,
+// 	InitEphemeralTestSuite,
+// 	// InitSnapshottableTestSuite,
+// )
 
 // TestSuite represents an interface for a set of tests which works with TestDriver
 type TestSuite interface {

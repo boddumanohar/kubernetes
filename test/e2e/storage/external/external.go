@@ -316,14 +316,13 @@ func loadSnapshotClass(filename string) (*unstructured.Unstructured, error) {
 	return snapshotClass, nil
 }
 
-func (d *driverDefinition) GetSnapshotClass(e2econfig *testsuites.PerTestConfig) *unstructured.Unstructured {
+func (d *driverDefinition) GetSnapshotClass(e2econfig *testsuites.PerTestConfig, parameters map[string]string) *unstructured.Unstructured {
 	if !d.SnapshotClass.FromName && d.SnapshotClass.FromFile == "" && d.SnapshotClass.FromExistingClassName == "" {
 		e2eskipper.Skipf("Driver %q does not support snapshotting - skipping", d.DriverInfo.Name)
 	}
 
 	f := e2econfig.Framework
 	snapshotter := d.DriverInfo.Name
-	parameters := map[string]string{}
 	ns := e2econfig.Framework.Namespace.Name
 	suffix := "vsc"
 

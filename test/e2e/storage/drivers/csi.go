@@ -160,9 +160,8 @@ func (h *hostpathCSIDriver) GetCSIDriverName(config *testsuites.PerTestConfig) s
 	return config.GetUniqueDriverName()
 }
 
-func (h *hostpathCSIDriver) GetSnapshotClass(config *testsuites.PerTestConfig) *unstructured.Unstructured {
+func (h *hostpathCSIDriver) GetSnapshotClass(config *testsuites.PerTestConfig, parameters map[string]string) *unstructured.Unstructured {
 	snapshotter := config.GetUniqueDriverName()
-	parameters := map[string]string{}
 	ns := config.Framework.Namespace.Name
 	suffix := fmt.Sprintf("%s-vsc", snapshotter)
 
@@ -523,8 +522,7 @@ func (g *gcePDCSIDriver) GetDynamicProvisionStorageClass(config *testsuites.PerT
 	return testsuites.GetStorageClass(provisioner, parameters, &delayedBinding, ns, suffix)
 }
 
-func (g *gcePDCSIDriver) GetSnapshotClass(config *testsuites.PerTestConfig) *unstructured.Unstructured {
-	parameters := map[string]string{}
+func (g *gcePDCSIDriver) GetSnapshotClass(config *testsuites.PerTestConfig, parameters map[string]string) *unstructured.Unstructured {
 	snapshotter := g.driverInfo.Name
 	ns := config.Framework.Namespace.Name
 	suffix := fmt.Sprintf("%s-vsc", snapshotter)

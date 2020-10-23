@@ -370,7 +370,8 @@ func CreateSnapshotResource(sDriver SnapshottableTestDriver, config *PerTestConf
 	dc := r.Config.Framework.DynamicClient
 
 	ginkgo.By("creating a SnapshotClass")
-	r.Vsclass = sDriver.GetSnapshotClass(config)
+	parameters := map[string]string{}
+	r.Vsclass = sDriver.GetSnapshotClass(config, parameters)
 	if r.Vsclass == nil {
 		framework.Failf("Failed to get snapshot class based on test config")
 	}
