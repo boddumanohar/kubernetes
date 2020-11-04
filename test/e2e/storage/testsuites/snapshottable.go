@@ -205,7 +205,8 @@ func (s *snapshottableTestSuite) DefineTests(driver TestDriver, pattern testpatt
 				cleanupSteps = append(cleanupSteps, func() {
 					framework.ExpectNoError(sr.CleanupResource())
 				})
-				sr = CreateSnapshotResource(sDriver, config, pattern, pvc.GetName(), pvc.GetNamespace())
+				parameters := map[string]string{}
+				sr = CreateSnapshotResource(sDriver, config, pattern, pvc.GetName(), pvc.GetNamespace(), parameters)
 				vs = sr.Vs
 				vscontent = sr.Vscontent
 				vsc = sr.Vsclass
@@ -358,7 +359,7 @@ type SnapshotResource struct {
 // CreateSnapshot creates a VolumeSnapshotClass with given SnapshotDeletionPolicy and a VolumeSnapshot
 // from the VolumeSnapshotClass using a dynamic client.
 // Returns the unstructured VolumeSnapshotClass and VolumeSnapshot objects.
-func CreateSnapshot(sDriver SnapshottableTestDriver, config *PerTestConfig, pattern testpatterns.TestPattern, pvcName string, pvcNamespace string) (*unstructured.Unstructured, *unstructured.Unstructured) {
+func CreateSnapshot(sDriver SnapshottableTestDriver, config *PerTestConfig, pattern testpatterns.TestPattern, pvcName string, pvcNamespace string, parameters map[string]string) (*unstructured.Unstructured, *unstructured.Unstructured) {
 	defer ginkgo.GinkgoRecover()
 	var err error
 	if pattern.SnapshotType != testpatterns.DynamicCreatedSnapshot && pattern.SnapshotType != testpatterns.PreprovisionedCreatedSnapshot {
@@ -368,7 +369,7 @@ func CreateSnapshot(sDriver SnapshottableTestDriver, config *PerTestConfig, patt
 	dc := config.Framework.DynamicClient
 
 	ginkgo.By("creating a SnapshotClass")
-	sclass := sDriver.GetSnapshotClass(config)
+	sclass := sDriver.GetSnapshotClass(config, parameters)
 	if sclass == nil {
 		framework.Failf("Failed to get snapshot class based on test config")
 	}
@@ -414,13 +415,13 @@ func GetSnapshotContentFromSnapshot(dc dynamic.Interface, snapshot *unstructured
 
 // CreateSnapshotResource creates a snapshot resource for the current test. It knows how to deal with
 // different test pattern snapshot provisioning and deletion policy
-func CreateSnapshotResource(sDriver SnapshottableTestDriver, config *PerTestConfig, pattern testpatterns.TestPattern, pvcName string, pvcNamespace string) *SnapshotResource {
+func CreateSnapshotResource(sDriver SnapshottableTestDriver, config *PerTestConfig, pattern testpatterns.TestPattern, pvcName string, pvcNamespace string, parameters map[string]string) *SnapshotResource {
 	var err error
 	r := SnapshotResource{
 		Config:  config,
 		Pattern: pattern,
 	}
-	r.Vsclass, r.Vs = CreateSnapshot(sDriver, config, pattern, pvcName, pvcNamespace)
+	r.Vsclass, r.Vs = CreateSnapshot(sDriver, config, pattern, pvcName, pvcNamespace, parameters)
 
 	dc := r.Config.Framework.DynamicClient
 
